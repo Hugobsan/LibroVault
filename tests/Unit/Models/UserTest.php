@@ -2,7 +2,7 @@
 
 use App\Models\User;
 
-test('cast', function () {
+test('cast', function (): void {
     $user = new User();
     $reflection = new ReflectionMethod($user, 'casts');
     $reflection->setAccessible(true);
