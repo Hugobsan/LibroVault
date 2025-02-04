@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('publisher');
             $table->text('description')->nullable();
             $table->year('year')->nullable();
+            $table->string('processing_status')->default('pending');
             $table->timestamps();
         });
         

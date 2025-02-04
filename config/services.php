@@ -28,6 +28,11 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'semantic' => [
+        'url' => env('API_SEMANTIC_URL', 'http://127.0.0.1:5000'),
+        'timeout' => env('API_SEMANTIC_TIMEOUT', 60),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

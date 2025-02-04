@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Genre;
+use App\Enums\Status;
 use App\Facades\FileManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ class Book extends Model
     protected $fillable = [
         'user_id',
         'thumbnail_id',
+        'pdf_id',
         'title',
         'volume',
         'edition',
@@ -27,11 +29,13 @@ class Book extends Model
         'publisher',
         'description',
         'year',
+        'processing_status',
     ];
 
     protected $casts = [
         'year' => 'integer',
         'genre' => Genre::class,
+        'processing_status' => Status::class,
     ];
 
     // Função de boot para observar eventos do Eloquent

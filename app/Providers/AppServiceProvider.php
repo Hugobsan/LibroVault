@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\SemanticService;
 use App\Services\FileService;
 use Illuminate\Support\ServiceProvider;
 
@@ -17,6 +18,9 @@ class AppServiceProvider extends ServiceProvider
             return new FileService();
         });
 
+        $this->app->singleton('semantic-manager', function ($app) {
+            return new SemanticService();
+        });
     }
 
     /**

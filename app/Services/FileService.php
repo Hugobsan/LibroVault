@@ -37,8 +37,23 @@ class FileService
         return $file->delete();
     }
 
+    /**
+     * Retorna a URL do arquivo no storage local
+     * @param \App\Models\File $file
+     * @return string
+     */
     public function getUrl(File $file): string
     {
         return Storage::disk('local')->url($file->path);
+    }
+
+    /**
+     * Retorna o caminho do arquivo no storage local
+     * @param \App\Models\File $file
+     * @return string
+     */
+    public function getPath(File $file): string
+    {
+        return Storage::disk('local')->path($file->path);
     }
 }
