@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\ProcessPdfJob;
 use App\Models\Book;
 use App\Models\BookPage;
 use GuzzleHttp\Exception\RequestException;
@@ -104,6 +105,9 @@ class SemanticService
         if (!$book->bookFile) {
             throw new \Exception("Livro {$book->id} não possui um arquivo PDF para processar.");
         }
+
+        // Chama o job ProcessPdfJob para processar o PDF
+        ProcessPdfJob::dispatch($book);
 
         return $book;
     }
