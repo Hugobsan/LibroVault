@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
-import Vue3Toastify from "vue3-toastify";
+import { toast } from 'vue3-toastify';
 
 // Estrutura do formulário
 interface LoginForm {
@@ -25,10 +25,10 @@ const login = (): void => {
   loading.value = true;
   router.post("/login", form.value, {
     onSuccess: () => {
-      Vue3Toastify.success("Login realizado com sucesso!");
+      toast.success("Login realizado com sucesso!");
     },
     onError: (errors) => {
-      Vue3Toastify.error(errors.email || "Erro ao fazer login");
+      toast.error(errors.email || "Erro ao fazer login");
     },
     onFinish: () => {
       loading.value = false;

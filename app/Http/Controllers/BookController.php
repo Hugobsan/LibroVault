@@ -9,6 +9,7 @@ use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class BookController extends Controller
 {
@@ -18,7 +19,7 @@ class BookController extends Controller
     public function index()
     {
         $books = Book::where('user_id', Auth::id())->paginate(10);
-        return response()->json($books);
+        return Inertia::render('App/Books/Index', ['books' => $books]);
     }
 
     /**
