@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\FileManager;
 use App\Facades\SemanticManager;
 use App\Models\Book;
 use App\Http\Requests\StoreBookRequest;
@@ -27,8 +28,29 @@ class BookController extends Controller
     {
         $book = Book::create([
             'user_id' => Auth::id(),
-            ...$request->validated(),
+            ...$request->only(
+                'title',
+                'volume',
+                'edition',
+                'pages',
+                'isbn',
+                'author',
+                'genre',
+                'publisher',
+                'description',
+                'year',
+            ),
         ]);
+
+        if($request->hasFile('thumbnail')){
+            $book->thumbnail_id = FileManager::upload($request->file('thumbnail'), 'thumbnails')->id;
+        }
+
+        if($request->hasFile('pdf')){
+            $book->pdf_id = FileManager::upload($request->file('pdf'), 'pdfs')->id;
+        }
+
+        $book->save();
 
         return response()->json($book, 201);
     }
@@ -48,8 +70,29 @@ class BookController extends Controller
     public function update(UpdateBookRequest $request, Book $book)
     {
         $this->authorize('update', $book);
-        $book->update($request->validated());
+        $book->update($request->only(
+            'title',
+            'volume',
+            'edition',
+            'pages',
+            'isbn',
+            'author',
+            'genre',
+            'publisher',
+            'description',
+            'year',
+        ));
 
+        if($request->hasFile('thumbnail')){
+            $book->thumbnail_id = FileManager::upload($request->file('thumbnail'), 'thumbnails')->id;
+        }
+
+        if($request->hasFile('pdf')){
+            $book->pdf_id = FileManager::upload($request->file('pdf'), 'pdfs')->id;
+        }
+
+        $book->save();
+        
         return response()->json($book);
     }
 
@@ -62,6 +105,17 @@ class BookController extends Controller
         $book->deleteWithFiles();
 
         return response()->json(['message' => 'Livro excluído com sucesso.']);
+    }
+
+    public function uploadFile(Request $request, Book $book){
+        $request->validate([
+            'file' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        $book->pdf_id = FileManager::upload($request->file('file'), 'pdfs')->id;
+        $book->save();
+
+        return response()->json(['message' => 'Arquivo enviado com sucesso.']);
     }
 
     public function advancedSearch(Request $request){
