@@ -13,9 +13,7 @@ export default defineConfig({
         vue({
             template: { transformAssetUrls },
         }),
-        quasar({
-            sassVariables: 'resources/css/quasar-variables.sass',
-        }),
+        quasar(),
         tailwindcss('tailwind.config.js'),
     ],
 });
