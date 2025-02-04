@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\SemanticManager;
 use App\Models\Book;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
@@ -60,5 +62,15 @@ class BookController extends Controller
         $book->deleteWithFiles();
 
         return response()->json(['message' => 'Livro excluído com sucesso.']);
+    }
+
+    public function advancedSearch(Request $request){
+        $request->validate([
+            'query' => 'required|string|min:3',
+        ]);
+
+        $results = SemanticManager::advanceSearch($request->query('query'));
+
+        return response()->json($results);
     }
 }
