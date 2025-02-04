@@ -18,8 +18,7 @@ return new class extends Migration
             $table->text('text');
             $table->foreignId('embedding_file_id')->nullable()->constrained('files')->onDelete('set null');
             $table->timestamps();
-        });
-        
+        });     
     }
 
     /**

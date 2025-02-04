@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -13,15 +14,8 @@ class BookController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $books = Book::where('user_id', Auth::id())->paginate(10);
+        return response()->json($books);
     }
 
     /**
@@ -29,7 +23,12 @@ class BookController extends Controller
      */
     public function store(StoreBookRequest $request)
     {
-        //
+        $book = Book::create([
+            'user_id' => Auth::id(),
+            ...$request->validated(),
+        ]);
+
+        return response()->json($book, 201);
     }
 
     /**
@@ -37,15 +36,8 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Book $book)
-    {
-        //
+        $this->authorize('view', $book);
+        return response()->json($book);
     }
 
     /**
@@ -53,7 +45,10 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
-        //
+        $this->authorize('update', $book);
+        $book->update($request->validated());
+
+        return response()->json($book);
     }
 
     /**
@@ -61,6 +56,9 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        //
+        $this->authorize('delete', $book);
+        $book->deleteWithFiles();
+
+        return response()->json(['message' => 'Livro excluído com sucesso.']);
     }
 }

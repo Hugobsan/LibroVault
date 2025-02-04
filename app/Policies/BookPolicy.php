@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
+use App\Enums\Role;
 use App\Models\Book;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class BookPolicy
 {
@@ -13,7 +13,7 @@ class BookPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class BookPolicy
      */
     public function view(User $user, Book $book): bool
     {
-        return false;
+        return $user->id === $book->user_id || $user->role->isOneOf([Role::ADMIN, Role::PLUS]);
     }
 
     /**
@@ -29,7 +29,7 @@ class BookPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role->isOneOf([Role::ADMIN, Role::STANDARD, Role::PLUS]);
     }
 
     /**
@@ -37,7 +37,7 @@ class BookPolicy
      */
     public function update(User $user, Book $book): bool
     {
-        return false;
+        return $user->id === $book->user_id || $user->role === Role::ADMIN;
     }
 
     /**
@@ -45,22 +45,6 @@ class BookPolicy
      */
     public function delete(User $user, Book $book): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Book $book): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Book $book): bool
-    {
-        return false;
+        return $user->id === $book->user_id || $user->role === Role::ADMIN;
     }
 }
