@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Genre;
 use App\Enums\Status;
 use App\Facades\FileManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,7 +33,6 @@ class Book extends Model
 
     protected $casts = [
         'year' => 'integer',
-        'genre' => Genre::class,
         'processing_status' => Status::class,
     ];
 

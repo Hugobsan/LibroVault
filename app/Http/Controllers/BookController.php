@@ -18,7 +18,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::where('user_id', Auth::id())->paginate(10);
+        $books = Book::where('user_id', Auth::id())->get();
         return Inertia::render('App/Books/Index', ['books' => $books]);
     }
 
