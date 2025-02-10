@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laravel</title>
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
+    <title inertia>{{ config('app.name', 'LibroVault') }}</title>
+    @vite(['resources/js/app.ts', 'resources/css/app.css', "resources/js/Pages/{$page['component']}.vue"])
+    @routes
+    @inertiaHead
 </head>
 <body class="antialiased">
     @inertia

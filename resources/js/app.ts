@@ -9,6 +9,11 @@ import "@quasar/extras/fontawesome-v6/fontawesome-v6.css";
 import Vue3Toastify from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import { ZiggyVue } from "ziggy-js";
+import { route as routeFn } from 'ziggy-js';
+
+declare global {
+    var route: typeof routeFn;
+}
 
 createInertiaApp({
     resolve: (name) =>
@@ -20,7 +25,7 @@ createInertiaApp({
         const app = createApp({ render: () => h(App, props) });
 
         app.use(plugin);
-        app.use(ZiggyVue, (window as any).Ziggy);
+        app.use(ZiggyVue);
 
         app.use(Quasar, {
 			plugins: {

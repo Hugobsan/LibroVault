@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, type PropType } from "vue";
+import { ref, computed, watch, type PropType } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { router } from "@inertiajs/vue3";
 import type { Book } from "@/Types/app.entity";
+import { is } from "quasar";
+import axios from "axios";
 
 const props = defineProps({
     books: {
@@ -16,20 +18,74 @@ const searchQuery = ref(""); // Estado da barra de pesquisa
 const isSemanticSearch = ref(false); // Estado do botão de busca semântica
 const showCreateModal = ref(false); // Controle do modal de criação
 const isSearchLoading = ref(false); // Estado do carregamento da busca
+const selectedBook = ref<Book | null>(null); // Estado para edição de livro
+
+const semanticSearch = async () => {
+    const formData = new FormData();
+    formData.append("search", searchQuery.value);
+
+    const response = await axios.post(route("books.advanced-search"), formData);
+    return response.data;
+};
+
+function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if (new Date().getTime() - start > milliseconds) {
+            break;
+        }
+    }
+}
 
 // Computed para filtrar os livros
 const filteredBooks = computed(() => {
+    if (isSearchLoading.value) {
+        return [];
+    }
+    isSearchLoading.value = true;
+
+    // Busca semântica
+    if (isSemanticSearch.value) {
+        semanticSearch().then((response) => {
+            isSearchLoading.value = false;
+            return response;
+        });
+    }
+
     if (!searchQuery.value.trim()) {
+        isSearchLoading.value = false;
         return props.books ?? [];
     }
-    return props.books.filter((book) =>
+    //Adicionando 1s de espera para simular uma busca real
+    sleep(1000);
+    let response = props.books.filter((book) =>
         book.title.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
+    console.log("de boa");
+    isSearchLoading.value = false;
+    return response ?? [];
+});
+
+// Watch para acionar a busca quando searchQuery mudar
+watch(searchQuery, () => {
+    filteredBooks.value;
 });
 
 // Alternar busca semântica
 const toggleSemanticSearch = () => {
     isSemanticSearch.value = !isSemanticSearch.value;
+};
+
+// Abrir modal para criar um novo livro
+const openCreateModal = () => {
+    selectedBook.value = null;
+    showCreateModal.value = true;
+};
+
+// Abrir modal para editar um livro existente
+const openEditModal = (book: Book) => {
+    selectedBook.value = book;
+    showCreateModal.value = true;
 };
 
 // Navegar para detalhes do livro
@@ -49,7 +105,7 @@ const viewBook = (id: number) => {
                     unelevated
                     icon="add"
                     label="Adicionar Livro"
-                    @click="showCreateModal = true"
+                    @click="openCreateModal"
                     size="sm"
                 />
             </div>
@@ -77,20 +133,23 @@ const viewBook = (id: number) => {
                                 ? 'Desativar busca semântica'
                                 : 'Ativar busca semântica'
                         "
-                        :icon="
-                            isSemanticSearch
-                                ? 'auto_awesome'
-                                : 'auto_awesome_off'
-                        "
+                        icon="auto_awesome"
                     ></q-btn>
                 </template>
             </q-input>
+
             <!-- Skeleton para estado de search loading -->
-            <q-skeleton
+            <div
                 v-if="isSearchLoading"
-                class="w-full h-12"
-                :rounded="true"
-            />
+                class="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+                <q-skeleton
+                    v-for="n in 6"
+                    :key="n"
+                    type="rect"
+                    class="h-48 w-full"
+                />
+            </div>
 
             <!-- Placeholder se não houver livros -->
             <div
@@ -121,6 +180,13 @@ const viewBook = (id: number) => {
                             Autor: {{ book.author }}
                         </div>
                     </q-card-section>
+                    <q-card-actions align="right">
+                        <q-btn
+                            icon="edit"
+                            color="blue"
+                            @click="openEditModal(book)"
+                        />
+                    </q-card-actions>
                 </q-card>
             </div>
         </div>
