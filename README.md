@@ -13,12 +13,11 @@ LibroVault é um sistema de **estante virtual de livros** que permite armazenar,
 ## 🚀 Tecnologias Utilizadas
 
 - **Backend:** Laravel 11.31 (PHP 8.2)
-- **Frontend:** Vue 3 (pronto, mas não detalhado aqui)
+- **Frontend:** Vue 3 com Inertia.js, Vite.js, Quasar, Tailwind e Vue3-toastify
 - **Banco de Dados:** MySQL
 - **Processamento Semântico:** Microsserviço Python com `sentence-transformers`
 - **Filas e Jobs:** Laravel Queues (para processamento assíncrono de PDFs)
 - **Extração de Texto de PDFs:** `smalot/pdfparser`
-- **Testes Automatizados:** PEST
 
 ---
 
@@ -45,8 +44,8 @@ LibroVault é um sistema de **estante virtual de livros** que permite armazenar,
 - PHP 8.2+
 - Composer
 - MySQL
-- Node.js (para o Vue, caso necessário)
-- Microsserviço Python em execução (`API_SEMANTIC_URL`)
+- Node.js (para o Vue)
+- Microsserviço Python em execução (https://github.com/Hugobsan/LibroVault-Python)
 
 ### 📌 2️⃣ Clonar o Repositório
 
