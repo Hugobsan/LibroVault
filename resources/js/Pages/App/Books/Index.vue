@@ -2,9 +2,11 @@
 import { ref, computed, watch, type PropType } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { router } from "@inertiajs/vue3";
-import type { Book } from "@/Types/app.entity";
-import { is } from "quasar";
+import { Notify } from "quasar";
 import axios from "axios";
+import type { Book } from "@/Types/app.entity";
+import CreateBookModal from "@/Components/Books/CreateBookModal.vue";
+import { sleep } from "@/Utils/functions";
 
 const props = defineProps({
     books: {
@@ -19,61 +21,106 @@ const isSemanticSearch = ref(false); // Estado do botão de busca semântica
 const showCreateModal = ref(false); // Controle do modal de criação
 const isSearchLoading = ref(false); // Estado do carregamento da busca
 const selectedBook = ref<Book | null>(null); // Estado para edição de livro
+const searchResults = ref<{ book: Book; page_number: number; text: string }[]>(
+    []
+);
 
+// Função para realizar a busca semântica
 const semanticSearch = async () => {
-    const formData = new FormData();
-    formData.append("search", searchQuery.value);
+    isSearchLoading.value = true;
 
-    const response = await axios.post(route("books.advanced-search"), formData);
-    return response.data;
+    try {
+        const formData = new FormData();
+        formData.append("query", searchQuery.value);
+
+        const response = await axios.post(
+            route("books.advanced-search"),
+            formData
+        );
+
+        /* Exemplo de response:
+        [
+            {
+                "book_id": 1,
+                "page_number": 1,
+                "similarity": 0.9,
+                "text": "Lorem ipsum dolor sit amet...",
+                "book": { id: 1, title: "Livro Exemplo", author: "Autor" }
+            },
+            ...
+        ]
+        */
+
+        searchResults.value = response.data.map((result: any) => ({
+            book: result.book,
+            page_number: result.page_number,
+            text: result.text,
+        }));
+
+        if (searchResults.value.length === 0) {
+            Notify.create({
+                message: "Nenhum resultado relevante encontrado.",
+                color: "warning",
+                position: "top",
+                timeout: 4000,
+            });
+        }
+    } catch (error) {
+        console.error("Erro na busca semântica:", error);
+        searchResults.value = [];
+    } finally {
+        isSearchLoading.value = false;
+    }
 };
 
-function sleep(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 1e7; i++) {
-        if (new Date().getTime() - start > milliseconds) {
-            break;
-        }
-    }
-}
+// Função para executar a pesquisa
+const searchBooks = () => {
+    isSearchLoading.value = true;
 
-// Computed para filtrar os livros
+    if (isSemanticSearch.value) {
+        semanticSearch();
+    } else {
+        setTimeout(() => {
+            isSearchLoading.value = false;
+        }, 1000);
+    }
+};
+
+// Computed para filtrar os livros quando a busca semântica está desativada
 const filteredBooks = computed(() => {
     if (isSearchLoading.value) {
         return [];
     }
-    isSearchLoading.value = true;
-
-    // Busca semântica
-    if (isSemanticSearch.value) {
-        semanticSearch().then((response) => {
-            isSearchLoading.value = false;
-            return response;
-        });
-    }
 
     if (!searchQuery.value.trim()) {
-        isSearchLoading.value = false;
         return props.books ?? [];
     }
-    //Adicionando 1s de espera para simular uma busca real
-    sleep(1000);
-    let response = props.books.filter((book) =>
+
+    return props.books.filter((book) =>
         book.title.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
-    console.log("de boa");
-    isSearchLoading.value = false;
-    return response ?? [];
-});
-
-// Watch para acionar a busca quando searchQuery mudar
-watch(searchQuery, () => {
-    filteredBooks.value;
 });
 
 // Alternar busca semântica
 const toggleSemanticSearch = () => {
     isSemanticSearch.value = !isSemanticSearch.value;
+
+    if (isSemanticSearch.value) {
+        Notify.create({
+            message:
+                "A busca semântica considera a similaridade entre o termo pesquisado e o conteúdo dos PDFs. Pode ser mais precisa, mas pode demorar mais.",
+            color: "info",
+            position: "top",
+            timeout: 4000,
+        });
+    }
+};
+
+const highlightMatch = (text: string) => {
+    if (!searchQuery.value.trim()) return text;
+
+    const regex = new RegExp(`(${searchQuery.value})`, "gi");
+    return text.replace(regex, "<strong class='text-red-600'>$1</strong>");
 };
 
 // Abrir modal para criar um novo livro
@@ -99,7 +146,6 @@ const viewBook = (id: number) => {
         <div class="p-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold">📚 Biblioteca</h1>
-                <!-- Botão para Criar Livro -->
                 <q-btn
                     color="primary"
                     unelevated
@@ -116,10 +162,12 @@ const viewBook = (id: number) => {
                 filled
                 placeholder="Pesquisar livros..."
                 class="mb-4"
-                @keydown.enter="searchQuery = searchQuery.trim()"
+                @keydown.enter="searchBooks"
             >
                 <template v-slot:prepend>
-                    <q-icon name="search" />
+                    <q-btn flat round @click="searchBooks" title="Buscar">
+                        <q-icon name="search" />
+                    </q-btn>
                 </template>
                 <template v-slot:append>
                     <q-btn
@@ -134,11 +182,40 @@ const viewBook = (id: number) => {
                                 : 'Ativar busca semântica'
                         "
                         icon="auto_awesome"
-                    ></q-btn>
+                    />
                 </template>
             </q-input>
 
-            <!-- Skeleton para estado de search loading -->
+            <!-- Sugestões da Busca Semântica -->
+            <div
+                v-if="isSemanticSearch && searchResults.length > 0"
+                class="bg-gray-100 p-3 rounded shadow-md mb-4"
+            >
+                <h3 class="text-lg font-bold mb-2">🔍 Resultados Relevantes</h3>
+                <ul>
+                    <li
+                        v-for="result in searchResults"
+                        :key="result.book.id + '-' + result.page_number"
+                        class="cursor-pointer hover:bg-gray-200 p-2 rounded"
+                        @click="viewBook(result.book.id)"
+                    >
+                        <span class="font-bold text-blue-600">{{
+                            result.book.title
+                        }}</span>
+                        - Página
+                        <span class="font-semibold">{{
+                            result.page_number
+                        }}</span>
+                        <br />
+                        <span
+                            v-html="highlightMatch(result.text)"
+                            class="text-gray-700"
+                        ></span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Skeleton Loader -->
             <div
                 v-if="isSearchLoading"
                 class="grid grid-cols-1 md:grid-cols-3 gap-6"
@@ -190,5 +267,8 @@ const viewBook = (id: number) => {
                 </q-card>
             </div>
         </div>
+
+        <!-- Modal de Criação/Edição de Livro -->
+        <CreateBookModal v-model="showCreateModal" :book="selectedBook" />
     </AppLayout>
 </template>

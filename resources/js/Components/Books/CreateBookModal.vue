@@ -20,15 +20,9 @@ const isEditing = computed(() => !!props.book);
 // Função para salvar o livro
 const saveBook = () => {
     if (isEditing.value) {
-        console.log("Editando livro:", {
-            title: title.value,
-            author: author.value,
-        });
+        console.log("Editando livro:", { title: title.value, author: author.value });
     } else {
-        console.log("Criando livro:", {
-            title: title.value,
-            author: author.value,
-        });
+        console.log("Criando livro:", { title: title.value, author: author.value });
     }
     onDialogHide();
 };

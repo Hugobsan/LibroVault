@@ -5,20 +5,26 @@ import { quasar, transformAssetUrls } from '@quasar/vite-plugin';
 import tailwindcss from 'tailwindcss';
 import path from "path";
 
+const isProduction = process.env.APP_ENV === 'production';
+
 export default defineConfig({
     resolve: {
         alias: {
-            "@": path.resolve(__dirname, "resources/js"), // ✅ Corrige o alias "@"
-            'ziggy-js': path.resolve('vendor/tightenco/ziggy/dist/index.js'),
-        }
+            "ziggy-js": path.resolve(__dirname, "vendor/tightenco/ziggy/dist/index.js")
+        },
+        optimizeDeps: ["ziggy-js", "ziggy-vue"]
     },
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.ts'],
-            refresh: true,
+            input:'resources/js/app.ts',
+            refresh: !isProduction,
         }),
         vue({
             template: { transformAssetUrls },
+            script: {
+                defineModel: true,
+                propsDestructure: true
+            }
         }),
         quasar(),
         tailwindcss('tailwind.config.js'),
