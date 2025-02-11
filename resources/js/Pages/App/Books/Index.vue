@@ -2,11 +2,11 @@
 import { ref, computed, watch, type PropType } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { router } from "@inertiajs/vue3";
-import { Notify } from "quasar";
+import { Notify, useQuasar } from "quasar";
 import axios from "axios";
 import type { Book } from "@/Types/app.entity";
 import CreateBookModal from "@/Components/Books/CreateBookModal.vue";
-import { sleep } from "@/Utils/functions";
+
 
 const props = defineProps({
     books: {
@@ -15,6 +15,8 @@ const props = defineProps({
         default: () => [],
     },
 });
+
+const $q = useQuasar();
 
 const searchQuery = ref(""); // Estado da barra de pesquisa
 const isSemanticSearch = ref(false); // Estado do botão de busca semântica
@@ -60,7 +62,7 @@ const semanticSearch = async () => {
         if (searchResults.value.length === 0) {
             Notify.create({
                 message: "Nenhum resultado relevante encontrado.",
-                color: "warning",
+                color: "secondary",
                 position: "top",
                 timeout: 4000,
             });
@@ -80,9 +82,7 @@ const searchBooks = () => {
     if (isSemanticSearch.value) {
         semanticSearch();
     } else {
-        setTimeout(() => {
-            isSearchLoading.value = false;
-        }, 1000);
+        isSearchLoading.value = false;
     }
 };
 
@@ -109,7 +109,7 @@ const toggleSemanticSearch = () => {
         Notify.create({
             message:
                 "A busca semântica considera a similaridade entre o termo pesquisado e o conteúdo dos PDFs. Pode ser mais precisa, mas pode demorar mais.",
-            color: "info",
+            color: "primary",
             position: "top",
             timeout: 4000,
         });
@@ -125,14 +125,22 @@ const highlightMatch = (text: string) => {
 
 // Abrir modal para criar um novo livro
 const openCreateModal = () => {
-    selectedBook.value = null;
-    showCreateModal.value = true;
+    $q.dialog({
+        component: CreateBookModal,
+        componentProps: {
+            book: null,
+        },
+    });
 };
 
 // Abrir modal para editar um livro existente
 const openEditModal = (book: Book) => {
-    selectedBook.value = book;
-    showCreateModal.value = true;
+    $q.dialog({
+        component: CreateBookModal,
+        componentProps: {
+            book,
+        },
+    });
 };
 
 // Navegar para detalhes do livro
@@ -267,8 +275,5 @@ const viewBook = (id: number) => {
                 </q-card>
             </div>
         </div>
-
-        <!-- Modal de Criação/Edição de Livro -->
-        <CreateBookModal v-model="showCreateModal" :book="selectedBook" />
     </AppLayout>
 </template>

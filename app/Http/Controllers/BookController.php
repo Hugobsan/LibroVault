@@ -124,7 +124,7 @@ class BookController extends Controller
             'query' => 'required|string|min:3',
         ]);
 
-        $results = SemanticManager::advanceSearch($request->query('query'));
+        $results = SemanticManager::advanceSearch($request->input('query'));
 
         //Convertendo book_id em instâncias de book
         foreach($results as $result){
