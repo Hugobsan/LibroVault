@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch, type PropType } from "vue";
+import { ref, computed, type PropType } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { router } from "@inertiajs/vue3";
-import { Notify, useQuasar } from "quasar";
+import { useQuasar } from "quasar";
 import axios from "axios";
 import type { Book } from "@/Types/app.entity";
 import CreateBookModal from "@/Components/Books/CreateBookModal.vue";
@@ -20,9 +20,7 @@ const $q = useQuasar();
 
 const searchQuery = ref(""); // Estado da barra de pesquisa
 const isSemanticSearch = ref(false); // Estado do botão de busca semântica
-const showCreateModal = ref(false); // Controle do modal de criação
 const isSearchLoading = ref(false); // Estado do carregamento da busca
-const selectedBook = ref<Book | null>(null); // Estado para edição de livro
 const searchResults = ref<{ book: Book; page_number: number; text: string }[]>(
     []
 );
@@ -60,7 +58,7 @@ const semanticSearch = async () => {
         }));
 
         if (searchResults.value.length === 0) {
-            Notify.create({
+            $q.notify({
                 message: "Nenhum resultado relevante encontrado.",
                 color: "secondary",
                 position: "top",
@@ -106,7 +104,7 @@ const toggleSemanticSearch = () => {
     isSemanticSearch.value = !isSemanticSearch.value;
 
     if (isSemanticSearch.value) {
-        Notify.create({
+        $q.notify({
             message:
                 "A busca semântica considera a similaridade entre o termo pesquisado e o conteúdo dos PDFs. Pode ser mais precisa, mas pode demorar mais.",
             color: "primary",
@@ -253,7 +251,7 @@ const viewBook = (id: number) => {
                     @click="viewBook(book.id)"
                 >
                     <q-img
-                        :src="book.thumbnail || '/assets/imgs/cover.jpg'"
+                        :src="book.thumbnail ? book.thumbnail.url : '/assets/imgs/cover.jpg'"
                         alt="Capa do livro"
                         class="h-48 w-full object-cover"
                     />

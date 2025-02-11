@@ -18,17 +18,19 @@ export interface User {
 // Tipagem do Livro
 export interface Book {
   id: number;
-  user_id: number;
+  user: User;
   title: string;
-  volume?: number;
-  edition?: string;
+  volume: integer;
+  edition: string;
   pages: number;
-  isbn?: string;
+  isbn: string;
   author: string;
   genre: string;
-  publisher?: string;
-  description?: string;
-  thumbnail?: string; // Será armazenado como um file_id no storage
+  publisher: string;
+  description: string;
+  year: number;
+  thumbnail?: File;
+  pdf?: File;
   processing_status: ProcessingStatus; // Enum
   created_at: string;
   updated_at: string;
@@ -37,10 +39,10 @@ export interface Book {
 // Tipagem da Página do Livro
 export interface BookPage {
   id: number;
-  book_id: number;
+  book: Book;
   page_number: number;
-  content: string;
-  embedding_file: string; // Arquivo com os embeddings no storage
+  text: string;
+  embedding_file: File;
   created_at: string;
   updated_at: string;
 }
@@ -48,11 +50,13 @@ export interface BookPage {
 // Tipagem de Arquivo
 export interface File {
   id: number;
-  user_id?: number; // Relacionado ao dono do arquivo
+  name: string;
   path: string;
-  mime_type: string;
+  type: string;
   size: number;
+  extension: string;
   expires_in?: string; // Para arquivos temporários
   created_at: string;
   updated_at: string;
+  url: string;
 }

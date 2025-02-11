@@ -53,7 +53,9 @@ class BookController extends Controller
 
         $book->save();
 
-        return response()->json($book, 201);
+        SemanticManager::processPdf($book);
+
+        return redirect()->route('books.index')->with('success', 'Livro cadastrado com sucesso.');
     }
 
     /**
@@ -93,8 +95,10 @@ class BookController extends Controller
         }
 
         $book->save();
+
+        SemanticManager::processPdf($book);
         
-        return response()->json($book);
+        return redirect()->route('books.index')->with('success', 'Livro atualizado com sucesso.');
     }
 
     /**
@@ -115,6 +119,8 @@ class BookController extends Controller
 
         $book->pdf_id = FileManager::upload($request->file('file'), 'pdfs')->id;
         $book->save();
+
+        SemanticManager::processPdf($book);
 
         return response()->json(['message' => 'Arquivo enviado com sucesso.']);
     }

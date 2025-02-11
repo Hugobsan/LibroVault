@@ -22,4 +22,18 @@ class File extends Model
     protected $casts = [
         'expires_in' => 'datetime',
     ];
-}
+
+    protected $appends = [
+        'url',
+    ];
+
+    /**
+     * Retorna a URL do arquivo
+     *
+     * @return string
+     */
+    public function getUrlAttribute(): string
+    {
+        return asset('storage/' . $this->path);
+    }
+} 
