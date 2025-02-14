@@ -24,9 +24,12 @@ const searchResults = ref<{ book: Book; page_number: number; text: string }[]>(
     []
 );
 
+const currentPage = ref(1); // Estado da página atual
+const itemsPerPage = ref(6); // Número de itens por página
+
 // Função para formatar o texto removendo marcações
 const formatText = (text: string) => {
-    return text.replace(/[\/.]/g, '').replace(/\n/g, ' ');
+    return text.replace(/[\/.]/g, "").replace(/\n/g, " ");
 };
 
 // Função para realizar a busca semântica
@@ -40,7 +43,7 @@ const semanticSearch = async () => {
 
         const response = await axios.post(
             route("books.advanced-search"),
-            formData,
+            formData
         );
 
         /* Exemplo de response:
@@ -105,6 +108,18 @@ const filteredBooks = computed(() => {
     );
 });
 
+// Computed para filtrar os livros com base na página atual e no número de itens por página
+const paginatedBooks = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return filteredBooks.value.slice(start, end);
+});
+
+// Função para mudar a página
+const changePage = (page: number) => {
+    currentPage.value = page;
+};
+
 // Alternar busca semântica
 const toggleSemanticSearch = () => {
     isSemanticSearch.value = !isSemanticSearch.value;
@@ -162,6 +177,27 @@ const openBookActions = (book: Book, event: MouseEvent) => {
     event.stopPropagation(); // Evita que o clique acione a rota de show do livro
     // Lógica para abrir o menu de ações
 };
+
+// Função para deletar um livro
+const deleteBook = async (id: number) => {
+    try {
+        await router.delete(route("books.destroy", id));
+        $q.notify({
+            message: "Livro excluído com sucesso.",
+            color: "positive",
+            position: "top",
+            timeout: 4000,
+        });
+    } catch (error) {
+        console.error("Erro ao excluir o livro:", error);
+        $q.notify({
+            message: "Erro ao excluir o livro.",
+            color: "negative",
+            position: "top",
+            timeout: 4000,
+        });
+    }
+};
 </script>
 
 <template>
@@ -172,6 +208,7 @@ const openBookActions = (book: Book, event: MouseEvent) => {
                 <q-btn
                     color="primary"
                     unelevated
+                    outline
                     icon="add"
                     label="Adicionar Livro"
                     @click="openCreateModal"
@@ -214,7 +251,13 @@ const openBookActions = (book: Book, event: MouseEvent) => {
                 v-if="isSemanticSearch && searchResults.length > 0"
                 class="bg-gray-100 p-3 rounded shadow-md mb-4 relative"
             >
-                <q-btn @click="clearSearchResults" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" flat round icon="close" />
+                <q-btn
+                    @click="clearSearchResults"
+                    class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                    flat
+                    round
+                    icon="close"
+                />
                 <h3 class="text-lg font-bold mb-2">🔍 Resultados Relevantes</h3>
                 <ul>
                     <li
@@ -263,7 +306,7 @@ const openBookActions = (book: Book, event: MouseEvent) => {
             <!-- Lista de Livros -->
             <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <q-card
-                    v-for="book in filteredBooks"
+                    v-for="book in paginatedBooks"
                     :key="book.id"
                     class="cursor-pointer"
                     @click="viewBook(book.id)"
@@ -278,34 +321,55 @@ const openBookActions = (book: Book, event: MouseEvent) => {
                         class="h-48 w-full object-cover"
                     />
                     <q-card-section>
-                        <div class="text-lg font-semibold">
-                            {{ book.title }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            Autor: {{ book.author }}
+                        <div class="flex flex-row items-center justify-between">
+                            <div>
+                                <div class="text-lg font-semibold">
+                                    {{ book.title }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Autor: {{ book.author }}
+                                </div>
+                                <div class="text-sm text-gray-500 truncate">
+                                    {{ book.description }}
+                                </div>
+                            </div>
+                            <q-btn-dropdown color="blue-4" outline square @click.stop>
+                                <q-list>
+                                    <q-item
+                                        clickable
+                                        v-ripple
+                                        @click="openEditModal(book)"
+                                    >
+                                        <q-item-section>
+                                            Editar
+                                        </q-item-section>
+                                    </q-item>
+                                    <q-item
+                                        clickable
+                                        v-ripple
+                                        @click="deleteBook(book.id)"
+                                    >
+                                        <q-item-section>
+                                            Excluir
+                                        </q-item-section>
+                                    </q-item>
+                                </q-list>
+                            </q-btn-dropdown>
                         </div>
                     </q-card-section>
-                    <q-card-actions align="right">
-                        <q-btn-dropdown
-                            icon="more_vert"
-                            color="blue"
-                            @click.stop
-                        >
-                            <q-list>
-                                <q-item clickable v-ripple @click="openEditModal(book)">
-                                    <q-item-section>
-                                        Editar
-                                    </q-item-section>
-                                </q-item>
-                                <q-item clickable v-ripple @click="deleteBook(book.id)">
-                                    <q-item-section>
-                                        Excluir
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-btn-dropdown>
-                    </q-card-actions>
+                    <q-card-actions align="right"> </q-card-actions>
                 </q-card>
+            </div>
+
+            <!-- Paginação -->
+            <div class="w-full flex justify-center mt-4">
+                <q-pagination
+                    v-if="filteredBooks.length > itemsPerPage"
+                    v-model="currentPage"
+                    :max="Math.ceil(filteredBooks.length / itemsPerPage)"
+                    @update:model-value="changePage"
+                    color="primary"
+                />
             </div>
         </div>
     </AppLayout>

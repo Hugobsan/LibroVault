@@ -7,9 +7,9 @@ const logout = (): void => {
 </script>
 
 <template>
-  <header class="flex justify-between items-center p-4 bg-blue-600 text-white">
-    <h1 class="text-lg font-bold">LibroVault</h1>
-    <q-btn label="Sair" color="red" @click="logout" />
+  <header class="flex justify-between items-center p-4 bg-blue-6 text-white">
+    <h1 class="text-xl font-bold">📚 LibroVault</h1>
+    <q-btn icon="logout" flat round color="red-6" @click="logout" />
   </header>
   <main class="p-6">
     <slot />
