@@ -7,7 +7,6 @@ import axios from "axios";
 import type { Book } from "@/Types/app.entity";
 import CreateBookModal from "@/Components/Books/CreateBookModal.vue";
 
-
 const props = defineProps({
     books: {
         type: Array as PropType<Book[]>,
@@ -25,17 +24,23 @@ const searchResults = ref<{ book: Book; page_number: number; text: string }[]>(
     []
 );
 
+// Função para formatar o texto removendo marcações
+const formatText = (text: string) => {
+    return text.replace(/[\/.]/g, '').replace(/\n/g, ' ');
+};
+
 // Função para realizar a busca semântica
 const semanticSearch = async () => {
-    isSearchLoading.value = true;
-
     try {
         const formData = new FormData();
         formData.append("query", searchQuery.value);
+        $q.loading.show({
+            message: "Analisando livros...",
+        });
 
         const response = await axios.post(
             route("books.advanced-search"),
-            formData
+            formData,
         );
 
         /* Exemplo de response:
@@ -54,7 +59,7 @@ const semanticSearch = async () => {
         searchResults.value = response.data.map((result: any) => ({
             book: result.book,
             page_number: result.page_number,
-            text: result.text,
+            text: formatText(result.text), // Formatando o texto
         }));
 
         if (searchResults.value.length === 0) {
@@ -69,6 +74,7 @@ const semanticSearch = async () => {
         console.error("Erro na busca semântica:", error);
         searchResults.value = [];
     } finally {
+        $q.loading.hide();
         isSearchLoading.value = false;
     }
 };
@@ -86,7 +92,7 @@ const searchBooks = () => {
 
 // Computed para filtrar os livros quando a busca semântica está desativada
 const filteredBooks = computed(() => {
-    if (isSearchLoading.value) {
+    if (isSearchLoading.value || isSemanticSearch.value) {
         return [];
     }
 
@@ -145,6 +151,17 @@ const openEditModal = (book: Book) => {
 const viewBook = (id: number) => {
     router.get(`/books/${id}`);
 };
+
+// Função para limpar os resultados relevantes
+const clearSearchResults = () => {
+    searchResults.value = [];
+};
+
+// Função para abrir o menu de ações do livro
+const openBookActions = (book: Book, event: MouseEvent) => {
+    event.stopPropagation(); // Evita que o clique acione a rota de show do livro
+    // Lógica para abrir o menu de ações
+};
 </script>
 
 <template>
@@ -195,8 +212,9 @@ const viewBook = (id: number) => {
             <!-- Sugestões da Busca Semântica -->
             <div
                 v-if="isSemanticSearch && searchResults.length > 0"
-                class="bg-gray-100 p-3 rounded shadow-md mb-4"
+                class="bg-gray-100 p-3 rounded shadow-md mb-4 relative"
             >
+                <q-btn @click="clearSearchResults" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" flat round icon="close" />
                 <h3 class="text-lg font-bold mb-2">🔍 Resultados Relevantes</h3>
                 <ul>
                     <li
@@ -251,7 +269,11 @@ const viewBook = (id: number) => {
                     @click="viewBook(book.id)"
                 >
                     <q-img
-                        :src="book.thumbnail ? book.thumbnail.url : '/assets/imgs/cover.jpg'"
+                        :src="
+                            book.thumbnail
+                                ? book.thumbnail.url
+                                : '/assets/imgs/cover.jpg'
+                        "
                         alt="Capa do livro"
                         class="h-48 w-full object-cover"
                     />
@@ -264,11 +286,24 @@ const viewBook = (id: number) => {
                         </div>
                     </q-card-section>
                     <q-card-actions align="right">
-                        <q-btn
-                            icon="edit"
+                        <q-btn-dropdown
+                            icon="more_vert"
                             color="blue"
-                            @click="openEditModal(book)"
-                        />
+                            @click.stop
+                        >
+                            <q-list>
+                                <q-item clickable v-ripple @click="openEditModal(book)">
+                                    <q-item-section>
+                                        Editar
+                                    </q-item-section>
+                                </q-item>
+                                <q-item clickable v-ripple @click="deleteBook(book.id)">
+                                    <q-item-section>
+                                        Excluir
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-btn-dropdown>
                     </q-card-actions>
                 </q-card>
             </div>

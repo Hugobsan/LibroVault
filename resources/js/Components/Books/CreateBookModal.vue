@@ -73,17 +73,9 @@ const saveBook = () => {
     );
 
     if (isEditing.value) {
-        console.log("Editando livro:", formData);
-        Notify.create({
-            message: "Livro editado com sucesso!",
-            color: "positive",
-        });
+        toast.success("Livro editado com sucesso!");
     } else {
-        console.log("Criando livro:", formData);
-        Notify.create({
-            message: "Livro criado com sucesso!",
-            color: "positive",
-        });
+        toast.success("Livro criado com sucesso!");
     }
 
     onDialogHide();

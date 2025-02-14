@@ -132,8 +132,8 @@ class BookController extends Controller
 
         $results = SemanticManager::advanceSearch($request->input('query'));
 
-        //Convertendo book_id em instâncias de book
-        foreach($results as $result){
+        // Convertendo book_id em instâncias de book
+        foreach($results as &$result){
             $result['book'] = Book::find($result['book_id']);
         }
 

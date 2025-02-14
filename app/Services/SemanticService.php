@@ -11,8 +11,8 @@ use Illuminate\Support\Str;
 
 class SemanticService
 {
-    const API_MAKE_EMBEDDING = 'embedding/make';
-    const API_COMPARE_EMBEDDING = 'embedding/compare';
+    const API_MAKE_EMBEDDING = 'api/embedding/make';
+    const API_COMPARE_EMBEDDING = 'api/embedding/compare';
 
     /**
      * Cliente Guzzle
@@ -58,11 +58,9 @@ class SemanticService
      * @param ?array $options
      * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function fetch($method, $uri, $data = [], $options = [])
+    public function fetch($method, $uri, $data = [], $options = [])
     {
         try {
-            //logger($data);
-            //logger(json_encode($data));
             $opts = array_merge_recursive($options, [
                 'headers' => $this->getHeaders()
             ]);
@@ -145,8 +143,8 @@ class SemanticService
         foreach ($pages as $page) {
             if ($page->embeddingFile) {
                 $allEmbeddings[] = [
-                    'page_number' => $page->page_number,
-                    'book_id' => $page->book_id,
+                    'page_number' => (string)$page->page_number, // Convertendo para string
+                    'book_id' => (string)$page->book_id, // Convertendo para string
                     'embedding' => Storage::disk('local')->path($page->embeddingFile->path),
                 ];
             }
@@ -179,8 +177,7 @@ class SemanticService
             ]);
 
             // Converte a resposta para JSON
-            $ranking = $this->responseToJson($response) ?? [];
-
+            $ranking = json_decode($response->getBody(), true)['ranking'] ?? [];
             // Junta os resultados e mantém apenas os melhores
             $topResults = $this->mergeAndRankResults($topResults, $ranking, $maxResults);
             $timeEndChunk = microtime(true);

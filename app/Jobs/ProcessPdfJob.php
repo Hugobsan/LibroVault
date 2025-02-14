@@ -40,7 +40,7 @@ class ProcessPdfJob implements ShouldQueue
                 return;
             }
 
-            $pdfPath = FileManager::getPath($pdfFile->path);
+            $pdfPath = FileManager::getPath($pdfFile);
 
             $pages = $this->splitPdfIntoPages($pdfPath);
 
@@ -50,12 +50,12 @@ class ProcessPdfJob implements ShouldQueue
                     'text' => $pageContent,
                     'book_id' => $this->book->id,
                     'page_number' => $pageNumber,
-                ])->getBody()->getContents();
+                ]);
 
-                $embedding = SemanticManager::responseToJson($response);
+                $embedding = json_decode($response->getBody(), true); // Decodificando a resposta JSON
                 $embeddingPath = "embeddings/book_{$this->book->id}_page_{$pageNumber}.json";
 
-                Storage::disk('local')->put($embeddingPath, json_encode($embedding));
+                Storage::disk('local')->put($embeddingPath, json_encode($embedding), 'public');
 
                 $embeddingFile = File::create([
                     'name' => "embedding_book_{$this->book->id}_page_{$pageNumber}.json",
