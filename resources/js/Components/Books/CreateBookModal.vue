@@ -58,8 +58,8 @@ const saveBook = () => {
         pdf: pdf.value
     });
 
-    if (props.isEdit) {
-        form.put(route("books.update", props.book?.id), {
+    if (isEditing.value) {
+        form.put(route("books.update", { book: props.book?.id }), {
             preserveState: true,
             onSuccess: () => {
                 toast.success("Livro editado com sucesso!");
