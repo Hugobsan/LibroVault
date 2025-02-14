@@ -131,9 +131,12 @@ class BookController extends Controller
     public function advancedSearch(Request $request){
         $request->validate([
             'query' => 'required|string|min:3',
+            'book_id' => 'nullable|integer',
         ]);
 
-        $results = SemanticManager::advanceSearch($request->input('query'));
+        $book = $request->input('book_id') ? Book::find($request->input('book_id')) : null;
+
+        $results = SemanticManager::advanceSearch($request->input('query'), book: $book);
 
         // Convertendo book_id em instâncias de book
         foreach($results as &$result){

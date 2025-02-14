@@ -253,7 +253,7 @@ const deleteBook = async (id: number) => {
             <!-- Sugestões da Busca Semântica -->
             <div
                 v-if="isSemanticSearch && searchResults.length > 0"
-                class="bg-gray-100 p-3 rounded shadow-md mb-4 relative"
+                class="bg-gray-100 p-3 rounded shadow-md mb-4 relative max-h-64 overflow-y-auto"
             >
                 <q-btn
                     @click="clearSearchResults"

@@ -131,12 +131,18 @@ class SemanticService
      * @param int $maxResults
      * @param int $chunkSize
      * @param int $timeout
+     * @param Book|null $book
      * @return array
      */
-    public function advanceSearch(string $query, int $maxResults = 10, int $chunkSize = 100, int $timeout = 30): array
+    public function advanceSearch(string $query, Book $book = null, int $maxResults = 10, int $chunkSize = 100, int $timeout = 30): array
     {
         // Obtém todas as páginas com embeddings armazenados
         $pages = BookPage::with('embeddingFile')->get();
+
+        // Filtra as páginas de um livro específico, se informado
+        if ($book) {
+            $pages = $pages->where('book_id', $book->id);
+        }
 
         // Monta a lista de embeddings disponíveis
         $allEmbeddings = [];
