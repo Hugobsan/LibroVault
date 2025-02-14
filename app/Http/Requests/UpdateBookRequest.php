@@ -11,18 +11,29 @@ class UpdateBookRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required|string|max:255',
+            'volume' => 'nullable|string|max:255',
+            'edition' => 'nullable|string|max:255',
+            'pages' => 'nullable|integer|min:1',
+            'isbn' => 'nullable|string|max:13',
+            'author' => 'required|string|max:255',
+            'genre' => 'nullable|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'year' => 'nullable|integer|min:1000|max:' . date('Y'),
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'pdf' => 'nullable|mimes:pdf|max:10240',
         ];
     }
 }

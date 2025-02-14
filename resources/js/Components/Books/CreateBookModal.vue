@@ -9,7 +9,7 @@ defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent();
 
-const props = defineProps<{ book?: Book }>();
+const props = defineProps<{ book?: Book; isEdit?: boolean }>();
 
 // Estado do formulário
 const title = ref(props.book?.title ?? "");
@@ -28,7 +28,7 @@ const thumbnail = ref<File | null>(null);
 const pdf = ref<File | null>(null);
 
 // Computed para verificar se está editando ou criando
-const isEditing = computed(() => !!props.book);
+const isEditing = computed(() => !!props.isEdit);
 
 // Função para processar uploads
 const handleFileUpload = (files: File[], type: "thumbnail" | "pdf") => {
@@ -58,27 +58,31 @@ const saveBook = () => {
         pdf: pdf.value
     });
 
-    form.post(route("books.store"),
-        {
+    if (props.isEdit) {
+        form.put(route("books.update", props.book?.id), {
             preserveState: true,
             onSuccess: () => {
-                toast.success(isEditing.value ? "Livro editado com sucesso!" : "Livro criado com sucesso!");
+                toast.success("Livro editado com sucesso!");
                 onDialogHide();
             },
             onError: (e) => {
                 console.error("Erro ao salvar o livro:", e);
                 toast.error("Erro ao salvar o livro.");
             },
-        }
-    );
-
-    if (isEditing.value) {
-        toast.success("Livro editado com sucesso!");
+        });
     } else {
-        toast.success("Livro criado com sucesso!");
+        form.post(route("books.store"), {
+            preserveState: true,
+            onSuccess: () => {
+                toast.success("Livro criado com sucesso!");
+                onDialogHide();
+            },
+            onError: (e) => {
+                console.error("Erro ao salvar o livro:", e);
+                toast.error("Erro ao salvar o livro.");
+            },
+        });
     }
-
-    onDialogHide();
 };
 </script>
 

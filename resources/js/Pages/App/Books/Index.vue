@@ -158,6 +158,7 @@ const openEditModal = (book: Book) => {
         component: CreateBookModal,
         componentProps: {
             book,
+            isEdit: true,
         },
     });
 };
@@ -321,12 +322,12 @@ const deleteBook = async (id: number) => {
                         class="h-48 w-full object-cover"
                     />
                     <q-card-section>
-                        <div class="flex flex-row items-center justify-between">
-                            <div>
-                                <div class="text-lg font-semibold">
+                        <div class="flex flex-row items-center justify-between space-x-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-lg font-semibold truncate">
                                     {{ book.title }}
                                 </div>
-                                <div class="text-sm text-gray-500">
+                                <div class="text-sm text-gray-500 truncate">
                                     Autor: {{ book.author }}
                                 </div>
                                 <div class="text-sm text-gray-500 truncate">
