@@ -18,7 +18,7 @@ class FileService
      */
     public function upload(UploadedFile $file, string $directory = 'uploads', int $daysTilExpire = null): File
     {
-        $path = $file->store($directory, 'local');
+        $path = $file->store($directory); // Usando o disco 'public'
 
         return File::create([
             // Removendo caracteres especiais do nome do arquivo
@@ -33,7 +33,7 @@ class FileService
 
     public function delete(File $file): bool
     {
-        Storage::disk('local')->delete($file->path);
+        Storage::delete($file->path);
         return $file->delete();
     }
 
@@ -44,7 +44,7 @@ class FileService
      */
     public function getUrl(File $file): string
     {
-        return Storage::disk('local')->url($file->path);
+        return Storage::url($file->path);
     }
 
     /**
@@ -54,6 +54,6 @@ class FileService
      */
     public function getPath(File $file): string
     {
-        return Storage::disk('local')->path($file->path);
+        return Storage::path($file->path);
     }
 }

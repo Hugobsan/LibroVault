@@ -29,8 +29,8 @@ export interface Book {
   publisher: string;
   description: string;
   year: number;
-  thumbnail?: File;
-  pdf?: File;
+  thumbnail_file?: File;
+  pdf_file?: File;
   processing_status: ProcessingStatus; // Enum
   created_at: string;
   updated_at: string;

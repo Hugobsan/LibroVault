@@ -69,7 +69,7 @@ class Book extends Model
      * Relacionamento com o arquivo PDF do livro (File)
      * @return BelongsTo<File, Book>
      */
-    public function bookFile(): BelongsTo
+    public function pdfFile(): BelongsTo
     {
         return $this->belongsTo(File::class, 'pdf_id');
     }
@@ -85,7 +85,7 @@ class Book extends Model
 
 
     // Excluir arquivos relacionados ao deletar um livro
-    private function deleteWithFiles(): void
+    public function deleteWithFiles(): void
     {
         // Deletar a thumbnail se existir
         if ($this->thumbnailFile instanceof File) {
@@ -93,8 +93,8 @@ class Book extends Model
         }
 
         // Deletar o arquivo PDF se existir
-        if ($this->bookFile instanceof File) {
-            FileManager::delete($this->bookFile);
+        if ($this->pdfFile instanceof File) {
+            FileManager::delete($this->pdfFile);
         }
 
         // Deletar as páginas do livro

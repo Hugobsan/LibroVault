@@ -33,7 +33,7 @@ class ProcessPdfJob implements ShouldQueue
     {
         try {
             $this->book->update(['processing_status' => Status::PROCESSING]);
-            $pdfFile = $this->book->bookFile;
+            $pdfFile = $this->book->pdfFile;
 
             if (!$pdfFile) {
                 logger()->error("O livro {$this->book->id} não possui um arquivo PDF associado.");
@@ -55,7 +55,7 @@ class ProcessPdfJob implements ShouldQueue
                 $embedding = json_decode($response->getBody(), true); // Decodificando a resposta JSON
                 $embeddingPath = "embeddings/book_{$this->book->id}_page_{$pageNumber}.json";
 
-                Storage::disk('local')->put($embeddingPath, json_encode($embedding), 'public');
+                Storage::put($embeddingPath, json_encode($embedding), 'public');
 
                 $embeddingFile = File::create([
                     'name' => "embedding_book_{$this->book->id}_page_{$pageNumber}.json",

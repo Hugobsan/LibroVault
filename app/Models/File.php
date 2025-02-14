@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Facades\FileManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class File extends Model
 {
@@ -28,12 +30,12 @@ class File extends Model
     ];
 
     /**
-     * Retorna a URL do arquivo
+     * Retorna a URL pública gerada para o arquivo.
      *
      * @return string
      */
     public function getUrlAttribute(): string
     {
-        return asset('storage/' . $this->path);
+        return FileManager::getUrl($this);
     }
-} 
+}

@@ -100,7 +100,7 @@ class SemanticService
      */
     public function processPdf(Book $book)
     {
-        if (!$book->bookFile) {
+        if (!$book->pdfFile) {
             throw new \Exception("Livro {$book->id} não possui um arquivo PDF para processar.");
         }
 

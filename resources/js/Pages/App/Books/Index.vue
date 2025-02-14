@@ -314,8 +314,8 @@ const deleteBook = async (id: number) => {
                 >
                     <q-img
                         :src="
-                            book.thumbnail
-                                ? book.thumbnail.url
+                            book.thumbnail_file
+                                ? book.thumbnail_file.url
                                 : '/assets/imgs/cover.jpg'
                         "
                         alt="Capa do livro"
@@ -334,7 +334,7 @@ const deleteBook = async (id: number) => {
                                     {{ book.description }}
                                 </div>
                             </div>
-                            <q-btn-dropdown color="blue-4" outline square @click.stop>
+                            <q-btn-dropdown color="grey-9" size="sm" outline square @click.stop>
                                 <q-list>
                                     <q-item
                                         clickable
@@ -350,7 +350,7 @@ const deleteBook = async (id: number) => {
                                         v-ripple
                                         @click="deleteBook(book.id)"
                                     >
-                                        <q-item-section>
+                                        <q-item-section class="text-red-600">
                                             Excluir
                                         </q-item-section>
                                     </q-item>

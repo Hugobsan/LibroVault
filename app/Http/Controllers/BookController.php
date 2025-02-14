@@ -18,7 +18,9 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::where('user_id', Auth::id())->get();
+        $books = Book::where('user_id', Auth::id())
+        ->with('thumbnailFile', 'pdfFile') // Updated to include proper relations
+        ->get();
         return Inertia::render('App/Books/Index', ['books' => $books]);
     }
 
@@ -64,7 +66,8 @@ class BookController extends Controller
     public function show(Book $book)
     {
         $this->authorize('view', $book);
-        return response()->json($book);
+        $book->load('user', 'thumbnailFile', 'pdfFile'); // Updated to include proper relations
+        return Inertia::render('App/Books/Show', ['book' => $book]);
     }
 
     /**
@@ -107,9 +110,9 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         $this->authorize('delete', $book);
-        $book->deleteWithFiles();
+        $book->delete();
 
-        return response()->json(['message' => 'Livro excluído com sucesso.']);
+        return back()->with('success', 'Livro excluído com sucesso.');
     }
 
     public function uploadFile(Request $request, Book $book){
