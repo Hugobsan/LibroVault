@@ -27,9 +27,10 @@ const searchResults = ref<{ book: Book; page_number: number; text: string }[]>(
 const currentPage = ref(1); // Estado da página atual
 const itemsPerPage = ref(6); // Número de itens por página
 
-// Função para formatar o texto removendo marcações
-const formatText = (text: string) => {
-    return text.replace(/[\/.]/g, "").replace(/\n/g, " ");
+// Função para formatar o texto removendo marcações e limitando o tamanho
+const formatText = (text: string, limit: number = 500) => {
+    const formattedText = text.replace(/[\/.]/g, '').replace(/\n/g, ' ');
+    return formattedText.length > limit ? formattedText.substring(0, limit) + '...' : formattedText;
 };
 
 // Função para realizar a busca semântica
@@ -62,7 +63,7 @@ const semanticSearch = async () => {
         searchResults.value = response.data.map((result: any) => ({
             book: result.book,
             page_number: result.page_number,
-            text: formatText(result.text), // Formatando o texto
+            text: formatText(result.text), // Formatando o texto e limitando o tamanho
         }));
 
         if (searchResults.value.length === 0) {
@@ -135,10 +136,12 @@ const toggleSemanticSearch = () => {
     }
 };
 
+// Função para destacar as palavras correspondentes à pesquisa
 const highlightMatch = (text: string) => {
     if (!searchQuery.value.trim()) return text;
 
-    const regex = new RegExp(`(${searchQuery.value})`, "gi");
+    const words = searchQuery.value.split(' ').filter(word => word.trim().length > 3); // Filtrando palavras com mais de 3 letras
+    const regex = new RegExp(`(${words.join('|')})`, 'gi');
     return text.replace(regex, "<strong class='text-red-600'>$1</strong>");
 };
 
