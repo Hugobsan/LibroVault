@@ -151,7 +151,7 @@ class SemanticService
                 $allEmbeddings[] = [
                     'page_number' => (string)$page->page_number, // Convertendo para string
                     'book_id' => (string)$page->book_id, // Convertendo para string
-                    'embedding' => Storage::disk('local')->path($page->embeddingFile->path),
+                    'embedding' => Storage::path($page->embeddingFile->path),
                 ];
             }
         }
