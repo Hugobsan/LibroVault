@@ -1,4 +1,4 @@
-import { createApp, h} from "vue";
+import { createApp, h } from "vue";
 import type { DefineComponent } from "vue";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createInertiaApp } from "@inertiajs/vue3";
@@ -9,7 +9,7 @@ import "@quasar/extras/fontawesome-v6/fontawesome-v6.css";
 import Vue3Toastify from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import { ZiggyVue } from "ziggy-js";
-import { route as routeFn } from 'ziggy-js';
+import { route as routeFn } from "ziggy-js";
 
 declare global {
     var route: typeof routeFn;
@@ -17,10 +17,10 @@ declare global {
 
 createInertiaApp({
     resolve: (name) =>
-		resolvePageComponent(
-			`./Pages/${name}.vue`,
-			import.meta.glob<DefineComponent>("./Pages/**/*.vue")
-		),
+        resolvePageComponent(
+            `./Pages/${name}.vue`,
+            import.meta.glob<DefineComponent>("./Pages/**/*.vue")
+        ),
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) });
 
@@ -28,19 +28,24 @@ createInertiaApp({
         app.use(ZiggyVue);
 
         app.use(Quasar, {
-			plugins: {
-				Notify,
-				Dialog,
-				Loading
-			}
-			// lang: quasarLang
-		});
-        
+            plugins: {
+                Notify,
+                Dialog,
+                Loading,
+            },
+            // lang: quasarLang
+        });
+
         app.use(Vue3Toastify, {
             autoClose: 3000,
             position: "top-right",
         });
 
         app.mount(el);
+    },
+
+    progress: {
+        color: "#0a1240",
+        includeCSS: true,
     },
 });
