@@ -141,14 +141,14 @@ const saveBook = () => {
 
                     <!-- Upload de PDF -->
                     <q-uploader
-                        label="Upload do PDF (100mb)"
+                        label="Upload do PDF (20mb)"
                         accept=".pdf"
                         max-files="1"
                         color="blue-6"
                         auto-upload
                         class="mt-4 md:mt-0"
                         style="width: 100%"
-                        max-file-size="104857600"
+                        max-file-size="20480000"
                         @added="handleFileUpload($event, 'pdf')"
                     />
                 </div>

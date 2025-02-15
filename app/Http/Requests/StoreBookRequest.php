@@ -34,8 +34,8 @@ class StoreBookRequest extends FormRequest
             'publisher' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'year' => ['nullable', 'integer', 'min:1'],
-            'thumbnail' => ['nullable', 'image', 'max:5242880'],
-            'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:104857600'],
+            'thumbnail' => ['nullable', 'image', 'max:20480'],
+            'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
         ];
     }
 }

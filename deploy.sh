@@ -5,7 +5,7 @@ set -e  # Para o script caso algum comando falhe
 echo "🚀 Iniciando atualização do ambiente..."
 
 # Acessa o diretório do projeto
-cd /var/www/tabula-ai || { echo "❌ Diretório não encontrado!"; exit 1; }
+cd /var/www/LibroVault || { echo "❌ Diretório não encontrado!"; exit 1; }
 
 echo "⏳ Colocando a aplicação em modo de manutenção..."
 php artisan down || true  # Continua mesmo se o artisan down falhar
