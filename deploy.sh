@@ -31,11 +31,16 @@ php artisan route:clear
 php artisan view:clear
 php artisan storage:link
 
-echo "📦 Instalando dependências do frontend..."
-yarn install --check-files --silent
+# Verifica se houve alterações no package.json
+if git diff --quiet HEAD@{1} HEAD -- package.json; then
+    echo "📦 Nenhuma alteração no package.json, pulando instalação do frontend..."
+else
+    echo "📦 Instalando dependências do frontend..."
+    yarn install --check-files --silent
 
-echo "⚡ Gerando build do frontend..."
-yarn run vite build
+    echo "⚡ Gerando build do frontend..."
+    yarn run vite build
+fi
 
 echo "✅ Reativando a aplicação..."
 php artisan up
